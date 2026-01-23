@@ -1,0 +1,47 @@
+.main_container {
+  display: flex;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+}
+
+.droppable_container {
+  width: 360px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.droppable_title {
+  margin-bottom: 12px;
+}
+
+.item_wrapper {
+  margin-bottom: 10px;
+}
+
+.placeholder {
+  height: 54px;
+  border-radius: 10px;
+  background: #e8f0ff;
+  border: 2px dashed #4c7dff;
+  margin-bottom: 10px;
+}
+
+.draggable_item {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: grab;
+  user-select: none;
+  transition: 0.15s ease;
+}
+
+.draggable_item.dragging {
+  background: #d9e7ff;
+  opacity: 0.6;
+}
