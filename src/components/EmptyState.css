@@ -1,0 +1,44 @@
+.empty_container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 50vh;
+}
+
+.empty_state {
+  width: 100%;
+  max-width: 300px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px dashed #d0d5dd;
+  text-align: center;
+}
+
+.empty_state_title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+
+.empty_state_message {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.empty_state_btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.empty_state_btn:hover {
+  opacity: 0.9;
+}

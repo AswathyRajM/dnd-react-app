@@ -5,16 +5,16 @@ import BoardDetailsPage from "./pages/board/BoardDetails";
 import "./App.css";
 
 const initialBoards = [
-  {
-    id: "b1",
-    name: "Personal Tasks",
-    columns: {},
-  },
-  {
-    id: "b2",
-    name: "Work Sprint",
-    columns: {},
-  },
+  // {
+  //   id: "b1",
+  //   name: "Personal Tasks",
+  //   lists: {},
+  // },
+  // {
+  //   id: "b2",
+  //   name: "Work Sprint",
+  //   lists: {},
+  // },
 ];
 
 export default function App() {
@@ -24,7 +24,7 @@ export default function App() {
     const newBoard = {
       id: crypto.randomUUID(),
       name,
-      columns: {},
+      lists: {},
     };
 
     setBoards((prev) => [newBoard, ...prev]);
@@ -34,9 +34,9 @@ export default function App() {
     setBoards(newBoards);
   };
 
-  const handleUpdateColumns = (boardId, newColumns) => {
+  const handleUpdateLists = (boardId, newLists) => {
     setBoards((prev) =>
-      prev.map((b) => (b.id === boardId ? { ...b, columns: newColumns } : b)),
+      prev.map((b) => (b.id === boardId ? { ...b, lists: newLists } : b)),
     );
   };
 
@@ -60,7 +60,7 @@ export default function App() {
         element={
           <BoardDetailsPage
             boards={boards}
-            handleUpdateColumns={handleUpdateColumns}
+            handleUpdateLists={handleUpdateLists}
           />
         }
       />

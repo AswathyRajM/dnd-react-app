@@ -4,6 +4,7 @@ import "./Home.css";
 import { MdModeEditOutline, MdOutlineDelete } from "react-icons/md";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import Dialog from "../../components/Dialog";
+import EmptyState from "../../components/EmptyState";
 export default function BoardsPage({
   boards,
   handleCreateBoard,
@@ -80,8 +81,14 @@ export default function BoardsPage({
           </form>
         </div>
 
+        {boards.length === 0 && (
+          <EmptyState
+            title="No boards to show"
+            message="Create your first board to get started."
+          />
+        )}
         <div className="boards_grid">
-          {boards.map((board) => (
+          {boards?.map((board) => (
             <div
               key={board.id}
               className="board_card"

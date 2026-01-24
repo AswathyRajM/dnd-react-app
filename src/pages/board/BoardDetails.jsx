@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { IoAdd } from "react-icons/io5";
 import "./BoardDetails.css";
 import Dialog from "../../components/Dialog";
+import EmptyState from "../../components/EmptyState";
+import { IoMdArrowBack } from "react-icons/io";
 
 function reorder(list, fromIndex, toIndex) {
   const updated = [...list];
@@ -24,7 +26,7 @@ function moveItem(sourceList, destList, fromIndex, toIndex) {
   };
 }
 
-export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
+export default function BoardDetailsPage({ boards, handleUpdateLists }) {
   const { boardId } = useParams();
   const navigate = useNavigate();
 
@@ -35,7 +37,7 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
 
   const [dragging, setDragging] = useState(null);
   const [over, setOver] = useState(null);
-  const [columns, setCloumns] = useState(board.columns);
+  const [lists, setCloumns] = useState(board.lists);
   const [newColumnName, setNewColumnName] = useState("");
   const [newItem, setNewItem] = useState("");
   const [addingColumn, setAddingColumn] = useState("");
@@ -46,14 +48,14 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
     const trimmedName = newColumnName.trim();
     if (!trimmedName) return;
 
-    const updatedColumns = {
-      ...board.columns,
+    const updatedLists = {
+      ...board.lists,
       [trimmedName]: [],
     };
 
-    setCloumns(updatedColumns);
+    setCloumns(updatedLists);
 
-    handleUpdateColumns(board.id, updatedColumns);
+    handleUpdateLists(board.id, updatedLists);
 
     setNewColumnName("");
   };
@@ -84,7 +86,7 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
     e.preventDefault();
     setOver((prev) => {
       if (!prev || prev.toColumn !== toColumn) {
-        return { toColumn, toIndex: columns[toColumn].length };
+        return { toColumn, toIndex: lists[toColumn].length };
       }
       return prev;
     });
@@ -111,27 +113,27 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
       }
 
       const updated = {
-        ...columns,
-        [fromColumn]: reorder(columns[fromColumn], fromIndex, toIndex),
+        ...lists,
+        [fromColumn]: reorder(lists[fromColumn], fromIndex, toIndex),
       };
 
-      handleUpdateColumns(board.id, updated);
+      handleUpdateLists(board.id, updated);
     } else {
-      // move between columns
+      // move between lists
       const result = moveItem(
-        columns[fromColumn],
-        columns[toColumn],
+        lists[fromColumn],
+        lists[toColumn],
         fromIndex,
         toIndex,
       );
 
       const updated = {
-        ...columns,
+        ...lists,
         [fromColumn]: result.source,
         [toColumn]: result.destination,
       };
 
-      handleUpdateColumns(board.id, updated);
+      handleUpdateLists(board.id, updated);
     }
 
     setDragging(null);
@@ -156,19 +158,19 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
 
     handleToggleCreateColumnDialog();
 
-    const items = columns[addingColumn];
+    const items = lists[addingColumn];
     const updatedItems = [
       ...items,
       { id: Date.now().toString(), text: newItem.trim() },
     ];
 
-    const updatedColumns = {
-      ...columns,
+    const updatedLists = {
+      ...lists,
       [addingColumn]: updatedItems,
     };
-    setCloumns(updatedColumns);
+    setCloumns(updatedLists);
 
-    handleUpdateColumns(board.id, updatedColumns);
+    handleUpdateLists(board.id, updatedLists);
   };
 
   return (
@@ -176,8 +178,12 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
       <div className="boards_container">
         <div className="boards_header">
           <div className="boards_title">
-            <button className="back_btn" onClick={() => navigate("/boards")}>
-              ← Back
+            <button
+              className="back_btn flex"
+              onClick={() => navigate("/boards")}
+            >
+              <IoMdArrowBack />
+              Back
             </button>
             <h1 className="board_name_title">{board.name}</h1>
           </div>
@@ -195,10 +201,15 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
             </button>
           </form>
         </div>
-
-        <div className="board_columns">
-          {Object.keys(columns).map((colKey) => {
-            const items = columns[colKey];
+        {Object.keys(lists).length === 0 && (
+          <EmptyState
+            title="No items to show"
+            message="Add a new item to this column."
+          />
+        )}
+        <div className="board_lists">
+          {Object.keys(lists).map((colKey) => {
+            const items = lists[colKey];
 
             return (
               <div
