@@ -1,0 +1,38 @@
+.boards_title {
+  font-size: 28px;
+  margin: 0;
+}
+
+.boards_grid {
+  max-width: 1100px;
+  overflow-x: hidden;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 355px));
+  gap: 16px;
+}
+
+.board_card {
+  background: white;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: 0.15s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board_card:hover {
+  transform: translateY(-2px);
+}
+
+.board_name {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.board_name_input {
+  margin-right: 8px;
+}
