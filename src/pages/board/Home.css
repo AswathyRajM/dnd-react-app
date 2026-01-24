@@ -21,7 +21,9 @@
   transition: 0.15s ease;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: start;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .board_card:hover {

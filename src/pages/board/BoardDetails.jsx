@@ -241,7 +241,7 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
                           }
                           onDragEnd={handleDragEnd}
                         >
-                          {item.text}
+                          {item.text}1
                         </div>
                       </div>
                     );
@@ -260,7 +260,7 @@ export default function BoardDetailsPage({ boards, handleUpdateColumns }) {
 
       <Dialog
         open={openCreateDialog}
-        heading="Crete New Item"
+        heading="Create New Item"
         submitText="Create"
         cancelText="Cancel"
         onCancel={handleToggleCreateColumnDialog}

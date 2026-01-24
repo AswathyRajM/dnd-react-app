@@ -33,9 +33,9 @@ export default function BoardsPage({
     setBoardDeleteId({ boardId, boardName });
   };
 
-  const handleNavigate = (path) => {
-    if (boardEditing) return;
-    navigate(path);
+  const handleNavigate = (id) => {
+    if (boardEditing?.boardId === id) return;
+    navigate(`/boards/${id}`);
   };
 
   const handleBoardNameInputChange = (e) => {
@@ -85,7 +85,7 @@ export default function BoardsPage({
             <div
               key={board.id}
               className="board_card"
-              onClick={() => handleNavigate(`/boards/${board.id}`)}
+              onClick={() => handleNavigate(board.id)}
             >
               {boardEditing?.boardId === board.id ? (
                 <>
