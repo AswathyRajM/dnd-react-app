@@ -5,22 +5,19 @@ import { MdModeEditOutline, MdOutlineDelete } from "react-icons/md";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import Dialog from "../../components/Dialog";
 import EmptyState from "../../components/EmptyState";
-export default function BoardsPage({
-  boards,
-  handleCreateBoard,
-  handleUpdateBoards,
-}) {
+import { useBoards } from "../../hooks/useBoards";
+
+export default function BoardsPage() {
   const [name, setName] = useState("");
   const [boardEditing, setBoardEditing] = useState(null);
   const [boardDeleteId, setBoardDeleteId] = useState(null);
   const navigate = useNavigate();
+  const { boards, createBoard, updateBoardName, deleteBoard } = useBoards();
 
   const handleCreate = (e) => {
     e.preventDefault();
-
     if (!name.trim()) return;
-
-    handleCreateBoard(name.trim());
+    createBoard(name.trim());
     setName("");
   };
 
@@ -49,16 +46,12 @@ export default function BoardsPage({
   const handleEditSave = () => {
     const trimmedName = boardEditing.boardName.trim();
     if (!trimmedName) return;
-    const updatedBoards = boards.map((b) =>
-      b.id === boardEditing.boardId ? { ...b, name: trimmedName } : b,
-    );
-    handleUpdateBoards(updatedBoards);
+    updateBoardName(boardEditing.boardId, trimmedName);
     setBoardEditing(null);
   };
 
   const handleDeletesubmit = () => {
-    const updatedBoards = boards.filter((b) => b.id !== boardDeleteId?.boardId);
-    handleUpdateBoards(updatedBoards);
+    deleteBoard(boardDeleteId?.boardId);
     setBoardDeleteId(null);
   };
 

@@ -6,10 +6,12 @@ import Dialog from "../../components/Dialog";
 import EmptyState from "../../components/EmptyState";
 import { IoMdArrowBack } from "react-icons/io";
 import { moveItem, reorder } from "../../util/boardHelpers";
+import { useBoards } from "../../hooks/useBoards";
 
-export default function BoardDetailsPage({ boards, handleUpdateLists }) {
+export default function BoardDetailsPage() {
   const { boardId } = useParams();
   const navigate = useNavigate();
+  const { boards, createColumn, createTask, updateTasks } = useBoards();
 
   const board = useMemo(
     () => boards.find((b) => b.id === boardId),
@@ -36,20 +38,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     const trimmedName = newColumnName.trim();
     if (!trimmedName) return;
 
-    const listKey = trimmedName.toLowerCase().replace(/\s+/g, "_");
-    if (board.lists[listKey]) return;
-
-    const updatedLists = {
-      ...board.lists,
-      [listKey]: {
-        id: listKey,
-        name: trimmedName,
-        tasks: [],
-      },
-    };
-
-    setCloumns(updatedLists);
-    handleUpdateLists(board.id, updatedLists);
+    createColumn(board.id, trimmedName);
     setNewColumnName("");
   };
 
@@ -67,7 +56,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
   const getDraggedItem = () => {
     if (!draggingRef.current) return null;
     const { fromColumn, fromIndex } = draggingRef.current;
-    return lists[fromColumn]?.tasks?.[fromIndex] || null;
+    return board?.lists[fromColumn]?.tasks?.[fromIndex] || null;
   };
 
   const handlePointerDown = (e, itemId, fromColumn, fromIndex) => {
@@ -109,7 +98,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     if (indexAttr !== null && indexAttr !== undefined) {
       toIndex = Number(indexAttr);
     } else {
-      toIndex = lists[colKey]?.tasks?.length || 0;
+      toIndex = board?.lists[colKey]?.tasks?.length || 0;
     }
 
     const newOver = { toColumn: colKey, toIndex };
@@ -123,6 +112,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     const currentDragging = draggingRef.current;
     const currentOver = overRef.current;
 
+    // reset if nothing is being dragged or hovered
     if (!currentDragging || !currentOver) {
       setDragging(null);
       setOver(null);
@@ -134,6 +124,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     const { fromColumn, fromIndex } = currentDragging;
     const { toColumn, toIndex } = currentOver;
 
+    // if dropped in the same spot, just reset
     if (fromColumn === toColumn && fromIndex === toIndex) {
       setDragging(null);
       setOver(null);
@@ -142,34 +133,28 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
       return;
     }
 
-    let updated;
-
     if (fromColumn === toColumn) {
-      updated = {
-        ...lists,
-        [fromColumn]: {
-          ...lists[fromColumn],
-          tasks: reorder(lists[fromColumn].tasks, fromIndex, toIndex),
-        },
-      };
+      // reorder within the same column
+      const updatedTasks = reorder(
+        board.lists[fromColumn].tasks,
+        fromIndex,
+        toIndex,
+      );
+      updateTasks(board.id, fromColumn, updatedTasks); // hook handles state & localStorage
     } else {
-      const result = moveItem(
-        lists[fromColumn].tasks,
-        lists[toColumn].tasks,
+      // move between columns
+      const { source, destination } = moveItem(
+        board.lists[fromColumn].tasks,
+        board.lists[toColumn].tasks,
         fromIndex,
         toIndex,
       );
 
-      updated = {
-        ...lists,
-        [fromColumn]: { ...lists[fromColumn], tasks: result.source },
-        [toColumn]: { ...lists[toColumn], tasks: result.destination },
-      };
+      updateTasks(board.id, fromColumn, source);
+      updateTasks(board.id, toColumn, destination);
     }
 
-    setCloumns(updated);
-    handleUpdateLists(board.id, updated);
-
+    // reset dragging refs
     setDragging(null);
     setOver(null);
     draggingRef.current = null;
@@ -189,30 +174,11 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     setOpenCreateDialog(!openCreateDialog);
   };
 
-  const handleCreateItem = () => {
-    const trimmed = newItem.trim();
-    if (!trimmed) return;
-
+  const handleCreateTask = () => {
+    const taskName = newItem.trim();
+    if (!taskName) return;
     handleToggleCreateColumnDialog();
-
-    const list = lists[addingColumn];
-    if (!list) return;
-
-    const updatedTasks = [
-      ...(list.tasks || []),
-      { id: crypto.randomUUID(), text: trimmed },
-    ];
-
-    const updatedLists = {
-      ...lists,
-      [addingColumn]: {
-        ...list,
-        tasks: updatedTasks,
-      },
-    };
-
-    setCloumns(updatedLists);
-    handleUpdateLists(board.id, updatedLists);
+    createTask({ boardId: board.id, addingColumn, taskName });
     setNewItem("");
   };
 
@@ -247,7 +213,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
           </form>
         </div>
 
-        {Object.keys(lists).length === 0 && (
+        {Object.keys(board?.lists).length === 0 && (
           <EmptyState
             title="No items to show"
             message="Add a new item to this column."
@@ -260,8 +226,8 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          {Object.keys(lists).map((colKey) => {
-            const column = lists[colKey];
+          {Object.keys(board?.lists).map((colKey) => {
+            const column = board?.lists[colKey];
 
             return (
               <div key={colKey} className="column" data-col={colKey}>
@@ -331,7 +297,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
         submitText="Create"
         cancelText="Cancel"
         onCancel={handleToggleCreateColumnDialog}
-        onSubmit={handleCreateItem}
+        onSubmit={handleCreateTask}
       >
         <div className="flex flex_end">
           <textarea
