@@ -55,6 +55,7 @@ body {
   border-radius: 30%;
   padding: 6px;
   font-size: 2rem;
+  margin-bottom: 6px;
 }
 
 .icon_btn:hover {

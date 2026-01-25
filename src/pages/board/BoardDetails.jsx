@@ -254,7 +254,6 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
           />
         )}
 
-        {/* 👇 attach move/up on container */}
         <div
           className="board_lists"
           onPointerMove={handlePointerMove}
@@ -266,8 +265,8 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
 
             return (
               <div key={colKey} className="column" data-col={colKey}>
-                <div className="column_header">
-                  <h2 className="column_title">{column?.name}</h2>
+                <div className="board_card_heading">
+                  <h2 className="board_name">{column?.name}</h2>
                   <IoAdd
                     className="icon_btn"
                     onClick={() => handleToggleCreateColumnDialog(colKey)}

@@ -88,52 +88,71 @@ export default function BoardsPage({
           />
         )}
         <div className="boards_grid">
-          {boards?.map((board) => (
-            <div
-              key={board.id}
-              className="board_card"
-              onClick={() => handleNavigate(board.id)}
-            >
-              {boardEditing?.boardId === board.id ? (
-                <>
-                  <input
-                    className="input board_name_input"
-                    value={boardEditing.boardName}
-                    onChange={handleBoardNameInputChange}
-                    autoFocus
-                  />
-                  <div className="flex">
-                    <IoCheckmark
-                      className="icon_btn secondary_btn"
-                      onClick={handleEditSave}
-                    />
-                    <IoClose
-                      className="icon_btn"
-                      onClick={() => setBoardEditing(null)}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h3 className="board_name">{board.name}</h3>
-                  <div className="flex">
-                    <MdModeEditOutline
-                      className="icon_btn"
-                      onClick={(e) =>
-                        handleEditBoardName(e, board.id, board.name)
-                      }
-                    />
-                    <MdOutlineDelete
-                      className="icon_btn delete_btn"
-                      onClick={(e) =>
-                        handleDeleteBoardName(e, board.id, board.name)
-                      }
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
+          {boards?.map((board) => {
+            const totalTasks = Object.values(board.lists || {}).reduce(
+              (acc, list) => acc + (list.tasks?.length || 0),
+              0,
+            );
+
+            return (
+              <div
+                key={board.id}
+                className="board_card"
+                onClick={() => handleNavigate(board.id)}
+              >
+                <div className="board_card_heading">
+                  {boardEditing?.boardId === board.id ? (
+                    <>
+                      <input
+                        className="input board_name_input"
+                        value={boardEditing.boardName}
+                        onChange={handleBoardNameInputChange}
+                        autoFocus
+                      />
+                      <div className="flex">
+                        <IoCheckmark
+                          className="icon_btn secondary_btn"
+                          onClick={handleEditSave}
+                        />
+                        <IoClose
+                          className="icon_btn"
+                          onClick={() => setBoardEditing(null)}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="board_name">{board.name}</h3>
+                      <div className="flex">
+                        <MdModeEditOutline
+                          className="icon_btn"
+                          onClick={(e) =>
+                            handleEditBoardName(e, board.id, board.name)
+                          }
+                        />
+                        <MdOutlineDelete
+                          className="icon_btn delete_btn"
+                          onClick={(e) =>
+                            handleDeleteBoardName(e, board.id, board.name)
+                          }
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="board_tasks_summary">
+                  <p>Total Tasks: {totalTasks}</p>
+                  <ul>
+                    {Object.values(board.lists || {}).map((list) => (
+                      <li key={list.id}>
+                        {list.name}: {list.tasks?.length || 0}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       <Dialog
