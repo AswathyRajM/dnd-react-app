@@ -1,16 +1,54 @@
-# React Sortable Drag & Drop (No Library)
 
-A simple **sortable drag-and-drop list** built with **React** using the **native HTML5 Drag & Drop API**, without any external libraries.
+# React Drag & Drop From Scratch
+
+A **Trello-inspired task management app** built using **React** with **custom drag-and-drop logic** (no DnD libraries).  
+It supports **Boards → Lists → Tasks**, task reordering, moving tasks between lists, and saves everything in **localStorage**.
+
 
 ## Features
 
-- Reorder items by dragging
-- Placeholder preview while dragging
-- Clean UI with CSS
+- Create new boards  
+- Drag & drop tasks to reorder within the same list  
+- Drag & drop tasks to move across different lists  
+- Saves boards/lists/tasks in localStorage (persists after refresh)  
+- Uses a custom hook for centralized board/task operations  
+
+
+# React Drag & Drop From Scratch
+
+A **Trello-inspired task management app** built using **React** with **custom drag-and-drop logic** (no DnD libraries).  
+It supports **Boards → Lists → Tasks**, task reordering, moving tasks between lists, and saves everything in **localStorage**.
+
+
+## Tech Stack
+
+React, React Router DOM, CSS, LocalStorage, CustomHook
+
+
 
 ## Run Locally
 
+Clone the project
+
 ```bash
-npm install
-npm run dev
+  git clone https://github.com/AswathyRajM/dnd-react-app
 ```
+
+Go to the project directory
+
+```bash
+  cd my-project
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the server
+
+```bash
+  npm run start
+```
+
