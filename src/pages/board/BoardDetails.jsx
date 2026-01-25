@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IoAdd } from "react-icons/io5";
 import "./BoardDetails.css";
@@ -16,13 +16,19 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     [boards, boardId],
   );
 
-  const [dragging, setDragging] = useState(null);
-  const [over, setOver] = useState(null);
-  const [lists, setCloumns] = useState(board.lists);
+  const [dragging, setDragging] = useState(null); // { id, fromColumn, fromIndex }
+  const [over, setOver] = useState(null); // { toColumn, toIndex }
+  const [lists, setCloumns] = useState(board?.lists || {});
   const [newColumnName, setNewColumnName] = useState("");
   const [newItem, setNewItem] = useState("");
   const [addingColumn, setAddingColumn] = useState("");
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
+  const [dragSize, setDragSize] = useState({ w: 0, h: 0 });
+
+  const [dragPos, setDragPos] = useState({ x: 0, y: 0 });
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const draggingRef = useRef(null);
+  const overRef = useRef(null);
 
   const handleCreateColumn = (e) => {
     e.preventDefault();
@@ -31,7 +37,6 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     if (!trimmedName) return;
 
     const listKey = trimmedName.toLowerCase().replace(/\s+/g, "_");
-
     if (board.lists[listKey]) return;
 
     const updatedLists = {
@@ -45,7 +50,6 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
 
     setCloumns(updatedLists);
     handleUpdateLists(board.id, updatedLists);
-
     setNewColumnName("");
   };
 
@@ -60,77 +64,121 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     );
   }
 
-  const handleDragStart = (e, itemId, fromColumn, fromIndex) => {
-    setDragging({ id: itemId, fromColumn, fromIndex });
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", itemId);
+  const getDraggedItem = () => {
+    if (!draggingRef.current) return null;
+    const { fromColumn, fromIndex } = draggingRef.current;
+    return lists[fromColumn]?.tasks?.[fromIndex] || null;
   };
 
-  const handleDragOverItem = (e, toColumn, toIndex) => {
+  const handlePointerDown = (e, itemId, fromColumn, fromIndex) => {
     e.preventDefault();
-    setOver({ toColumn, toIndex });
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragSize({ w: rect.width, h: rect.height });
+
+    dragOffsetRef.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+
+    const dragMeta = { id: itemId, fromColumn, fromIndex };
+    setDragging(dragMeta);
+    draggingRef.current = dragMeta;
+
+    setDragPos({ x: e.clientX, y: e.clientY });
+
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
-  const handleDragOverColumn = (e, toColumn) => {
+  const handlePointerMove = (e) => {
+    if (!draggingRef.current) return;
+
+    setDragPos({ x: e.clientX, y: e.clientY });
+
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    if (!el) return;
+
+    const colKey = el.closest("[data-col]")?.getAttribute("data-col");
+    const indexAttr = el.closest("[data-index]")?.getAttribute("data-index");
+
+    if (!colKey) return;
+
+    let toIndex = 0;
+
+    if (indexAttr !== null && indexAttr !== undefined) {
+      toIndex = Number(indexAttr);
+    } else {
+      toIndex = lists[colKey]?.tasks?.length || 0;
+    }
+
+    const newOver = { toColumn: colKey, toIndex };
+    overRef.current = newOver;
+    setOver(newOver);
+
     e.preventDefault();
-    setOver((prev) => {
-      if (!prev || prev.toColumn !== toColumn) {
-        return { toColumn, toIndex: lists[toColumn].length };
-      }
-      return prev;
-    });
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
+  const finishDrop = () => {
+    const currentDragging = draggingRef.current;
+    const currentOver = overRef.current;
 
-    if (!dragging || !over) {
+    if (!currentDragging || !currentOver) {
       setDragging(null);
       setOver(null);
+      draggingRef.current = null;
+      overRef.current = null;
       return;
     }
 
-    const { fromColumn, fromIndex } = dragging;
-    const { toColumn, toIndex } = over;
+    const { fromColumn, fromIndex } = currentDragging;
+    const { toColumn, toIndex } = currentOver;
+
+    if (fromColumn === toColumn && fromIndex === toIndex) {
+      setDragging(null);
+      setOver(null);
+      draggingRef.current = null;
+      overRef.current = null;
+      return;
+    }
+
+    let updated;
 
     if (fromColumn === toColumn) {
-      if (fromIndex === toIndex) {
-        setDragging(null);
-        setOver(null);
-        return;
-      }
-
-      const updated = {
+      updated = {
         ...lists,
-        [fromColumn]: reorder(lists[fromColumn], fromIndex, toIndex),
+        [fromColumn]: {
+          ...lists[fromColumn],
+          tasks: reorder(lists[fromColumn].tasks, fromIndex, toIndex),
+        },
       };
-
-      handleUpdateLists(board.id, updated);
     } else {
-      // move between lists
       const result = moveItem(
-        lists[fromColumn],
-        lists[toColumn],
+        lists[fromColumn].tasks,
+        lists[toColumn].tasks,
         fromIndex,
         toIndex,
       );
 
-      const updated = {
+      updated = {
         ...lists,
-        [fromColumn]: result.source,
-        [toColumn]: result.destination,
+        [fromColumn]: { ...lists[fromColumn], tasks: result.source },
+        [toColumn]: { ...lists[toColumn], tasks: result.destination },
       };
-
-      handleUpdateLists(board.id, updated);
     }
 
+    setCloumns(updated);
+    handleUpdateLists(board.id, updated);
+
     setDragging(null);
     setOver(null);
+    draggingRef.current = null;
+    overRef.current = null;
   };
 
-  const handleDragEnd = () => {
-    setDragging(null);
-    setOver(null);
+  const handlePointerUp = () => {
+    if (!draggingRef.current) return;
+    finishDrop();
   };
 
   const handleToggleCreateColumnDialog = (colKey = "") => {
@@ -165,9 +213,10 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
 
     setCloumns(updatedLists);
     handleUpdateLists(board.id, updatedLists);
-
     setNewItem("");
   };
+
+  const draggedItem = getDraggedItem();
 
   return (
     <>
@@ -197,36 +246,36 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
             </button>
           </form>
         </div>
+
         {Object.keys(lists).length === 0 && (
           <EmptyState
             title="No items to show"
             message="Add a new item to this column."
           />
         )}
-        <div className="board_lists">
-          {Object.keys(lists).map((colKey) => {
-            const items = lists[colKey];
 
-            console.log({ lists, colKey, board, items });
+        {/* 👇 attach move/up on container */}
+        <div
+          className="board_lists"
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          {Object.keys(lists).map((colKey) => {
+            const column = lists[colKey];
+
             return (
-              <div
-                key={colKey}
-                className="column"
-                onDragOver={(e) => handleDragOverColumn(e, colKey)}
-                onDrop={handleDrop}
-              >
+              <div key={colKey} className="column" data-col={colKey}>
                 <div className="column_header">
-                  <h2 className="column_title">{items?.name}</h2>
+                  <h2 className="column_title">{column?.name}</h2>
                   <IoAdd
                     className="icon_btn"
-                    onClick={() => {
-                      handleToggleCreateColumnDialog(colKey);
-                    }}
+                    onClick={() => handleToggleCreateColumnDialog(colKey)}
                   />
                 </div>
 
                 <div className="column_body">
-                  {items?.tasks?.map((item, index) => {
+                  {column?.tasks?.map((item, index) => {
                     const isDragging = dragging?.id === item.id;
 
                     const showPlaceholder =
@@ -239,24 +288,20 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
                         {showPlaceholder && <div className="placeholder" />}
 
                         <div
-                          draggable
                           className={`card ${isDragging ? "card_dragging" : ""}`}
-                          onDragStart={(e) =>
-                            handleDragStart(e, item.id, colKey, index)
+                          data-index={index}
+                          onPointerDown={(e) =>
+                            handlePointerDown(e, item.id, colKey, index)
                           }
-                          onDragOver={(e) =>
-                            handleDragOverItem(e, colKey, index)
-                          }
-                          onDragEnd={handleDragEnd}
                         >
-                          {item.text}1
+                          {item.text}
                         </div>
                       </div>
                     );
                   })}
 
                   {over?.toColumn === colKey &&
-                    over?.toIndex === items.tasks.length && (
+                    over?.toIndex === column.tasks.length && (
                       <div className="placeholder end_placeholder" />
                     )}
                 </div>
@@ -265,6 +310,21 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
           })}
         </div>
       </div>
+
+      {/* Preview */}
+      {dragging && draggedItem && (
+        <div
+          className="drag_preview"
+          style={{
+            left: dragPos.x - dragOffsetRef.current.x,
+            top: dragPos.y - dragOffsetRef.current.y,
+            "--drag-w": `${dragSize.w}px`,
+            "--drag-h": `${dragSize.h}px`,
+          }}
+        >
+          {draggedItem.text}
+        </div>
+      )}
 
       <Dialog
         open={openCreateDialog}

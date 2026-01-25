@@ -16,7 +16,8 @@
   max-width: 1100px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 354px));
+
   gap: 18px;
 }
 
@@ -55,15 +56,13 @@
   transition: 0.15s ease;
   line-height: 1.35;
   font-size: 14px;
+  touch-action: none; /* prevents scrolling while dragging  */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .card:hover {
   transform: translateY(-1px);
-}
-
-.card_dragging {
-  background: #d9e7ff;
-  opacity: 0.6;
 }
 
 .placeholder {
@@ -90,4 +89,24 @@ textarea {
   border: 1px solid #ddd;
   outline: none;
   flex: 1;
+}
+
+.drag_preview {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: var(--drag-w);
+  height: var(--drag-h);
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  padding: 12px 12px;
+  line-height: 1.35;
+  font-size: 14px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.card_dragging {
+  display: none;
 }
