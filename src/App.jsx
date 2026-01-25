@@ -3,19 +3,7 @@ import { useState } from "react";
 import Home from "./pages/board/Home";
 import BoardDetailsPage from "./pages/board/BoardDetails";
 import "./App.css";
-
-const initialBoards = [
-  // {
-  //   id: "b1",
-  //   name: "Personal Tasks",
-  //   lists: {},
-  // },
-  // {
-  //   id: "b2",
-  //   name: "Work Sprint",
-  //   lists: {},
-  // },
-];
+import { initialBoards } from "./util/boardHelpers";
 
 export default function App() {
   const [boards, setBoards] = useState(initialBoards);
@@ -43,7 +31,6 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/boards" />} />
-
       <Route
         path="/boards"
         element={

@@ -5,26 +5,7 @@ import "./BoardDetails.css";
 import Dialog from "../../components/Dialog";
 import EmptyState from "../../components/EmptyState";
 import { IoMdArrowBack } from "react-icons/io";
-
-function reorder(list, fromIndex, toIndex) {
-  const updated = [...list];
-  const [removed] = updated.splice(fromIndex, 1);
-  updated.splice(toIndex, 0, removed);
-  return updated;
-}
-
-function moveItem(sourceList, destList, fromIndex, toIndex) {
-  const sourceClone = [...sourceList];
-  const destClone = [...destList];
-
-  const [removed] = sourceClone.splice(fromIndex, 1);
-  destClone.splice(toIndex, 0, removed);
-
-  return {
-    source: sourceClone,
-    destination: destClone,
-  };
-}
+import { moveItem, reorder } from "../../util/boardHelpers";
 
 export default function BoardDetailsPage({ boards, handleUpdateLists }) {
   const { boardId } = useParams();
@@ -45,16 +26,24 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
 
   const handleCreateColumn = (e) => {
     e.preventDefault();
+
     const trimmedName = newColumnName.trim();
     if (!trimmedName) return;
 
+    const listKey = trimmedName.toLowerCase().replace(/\s+/g, "_");
+
+    if (board.lists[listKey]) return;
+
     const updatedLists = {
       ...board.lists,
-      [trimmedName]: [],
+      [listKey]: {
+        id: listKey,
+        name: trimmedName,
+        tasks: [],
+      },
     };
 
     setCloumns(updatedLists);
-
     handleUpdateLists(board.id, updatedLists);
 
     setNewColumnName("");
@@ -104,7 +93,6 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     const { fromColumn, fromIndex } = dragging;
     const { toColumn, toIndex } = over;
 
-    // reorder inside same column
     if (fromColumn === toColumn) {
       if (fromIndex === toIndex) {
         setDragging(null);
@@ -154,23 +142,31 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
   };
 
   const handleCreateItem = () => {
-    if (!newItem.trim()) return;
+    const trimmed = newItem.trim();
+    if (!trimmed) return;
 
     handleToggleCreateColumnDialog();
 
-    const items = lists[addingColumn];
-    const updatedItems = [
-      ...items,
-      { id: Date.now().toString(), text: newItem.trim() },
+    const list = lists[addingColumn];
+    if (!list) return;
+
+    const updatedTasks = [
+      ...(list.tasks || []),
+      { id: crypto.randomUUID(), text: trimmed },
     ];
 
     const updatedLists = {
       ...lists,
-      [addingColumn]: updatedItems,
+      [addingColumn]: {
+        ...list,
+        tasks: updatedTasks,
+      },
     };
-    setCloumns(updatedLists);
 
+    setCloumns(updatedLists);
     handleUpdateLists(board.id, updatedLists);
+
+    setNewItem("");
   };
 
   return (
@@ -211,6 +207,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
           {Object.keys(lists).map((colKey) => {
             const items = lists[colKey];
 
+            console.log({ lists, colKey, board, items });
             return (
               <div
                 key={colKey}
@@ -219,7 +216,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
                 onDrop={handleDrop}
               >
                 <div className="column_header">
-                  <h2 className="column_title">{colKey}</h2>
+                  <h2 className="column_title">{items?.name}</h2>
                   <IoAdd
                     className="icon_btn"
                     onClick={() => {
@@ -229,7 +226,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
                 </div>
 
                 <div className="column_body">
-                  {items.map((item, index) => {
+                  {items?.tasks?.map((item, index) => {
                     const isDragging = dragging?.id === item.id;
 
                     const showPlaceholder =
@@ -259,7 +256,7 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
                   })}
 
                   {over?.toColumn === colKey &&
-                    over?.toIndex === items.length && (
+                    over?.toIndex === items.tasks.length && (
                       <div className="placeholder end_placeholder" />
                     )}
                 </div>
