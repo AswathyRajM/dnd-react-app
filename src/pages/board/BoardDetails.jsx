@@ -16,8 +16,8 @@ export default function BoardDetailsPage({ boards, handleUpdateLists }) {
     [boards, boardId],
   );
 
-  const [dragging, setDragging] = useState(null); // { id, fromColumn, fromIndex }
-  const [over, setOver] = useState(null); // { toColumn, toIndex }
+  const [dragging, setDragging] = useState(null);
+  const [over, setOver] = useState(null);
   const [lists, setCloumns] = useState(board?.lists || {});
   const [newColumnName, setNewColumnName] = useState("");
   const [newItem, setNewItem] = useState("");
