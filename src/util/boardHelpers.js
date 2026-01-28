@@ -21,7 +21,7 @@ export function moveItem(sourceList, destList, fromIndex, toIndex) {
 export const initialBoards = [
   {
     id: "b1",
-    name: "Personal Tasks 🏡",
+    name: "Personal Tasks ",
     lists: {
       todo: {
         id: "todo",
@@ -29,14 +29,14 @@ export const initialBoards = [
         tasks: [
           {
             id: "t1",
-            text: "Go to the market and buy fruits and veggies 🍎🥦",
+            text: "Go to the market and buy fruits and veggies ",
           },
-          { id: "t2", text: "Book a haircut appointment for the weekend ✂️" },
+          { id: "t2", text: "Book a haircut appointment for the weekend " },
           {
             id: "t3",
-            text: "Refill water bottle and drink more water today 💧",
+            text: "Refill water bottle and drink more water today ",
           },
-          { id: "t4", text: "Call mom and update her about the week 📞" },
+          { id: "t4", text: "Call mom and update her about the week " },
         ],
       },
       doing: {
@@ -45,27 +45,27 @@ export const initialBoards = [
         tasks: [
           {
             id: "t5",
-            text: "Fix sleep schedule by sleeping 30 mins earlier 😴",
+            text: "Fix sleep schedule by sleeping 30 mins earlier ",
           },
           {
             id: "t6",
-            text: "Clean the desk and organize all cables neatly 🧹",
+            text: "Clean the desk and organize all cables neatly ",
           },
-          { id: "t7", text: "Spend 20 minutes stretching and relaxing 🧘" },
+          { id: "t7", text: "Spend 20 minutes stretching and relaxing " },
         ],
       },
       done: {
         id: "done",
         name: "Done",
         tasks: [
-          { id: "t8", text: "Paid electricity bill ⚡" },
+          { id: "t8", text: "Paid electricity bill " },
           {
             id: "t9",
-            text: "Cleaned phone storage and deleted old screenshots 📸",
+            text: "Cleaned phone storage and deleted old screenshots ",
           },
           {
             id: "t10",
-            text: "Sort laundry and wash dark clothes separately 👕",
+            text: "Sort laundry and wash dark clothes separately ",
           },
         ],
       },
@@ -74,7 +74,7 @@ export const initialBoards = [
 
   {
     id: "b2",
-    name: "Work Sprint 🚀",
+    name: "Work Sprint ",
     lists: {
       backlog: {
         id: "backlog",
@@ -82,13 +82,13 @@ export const initialBoards = [
         tasks: [
           {
             id: "t11",
-            text: "Add board create dialog with validation and nice UI ✨",
+            text: "Add board create dialog with validation and nice UI ",
           },
           {
             id: "t12",
-            text: "Add delete confirmation modal for boards and lists 🗑️",
+            text: "Add delete confirmation modal for boards and lists ",
           },
-          { id: "t13", text: "Add task counter badge per list 🔢" },
+          { id: "t13", text: "Add task counter badge per list " },
         ],
       },
       inprogress: {
@@ -97,15 +97,15 @@ export const initialBoards = [
         tasks: [
           {
             id: "t14",
-            text: "Refactor list component to reusable UI blocks ♻️",
+            text: "Refactor list component to reusable UI blocks ",
           },
           {
             id: "t15",
-            text: "Fix long text overflow in task cards properly 📝",
+            text: "Fix long text overflow in task cards properly ",
           },
           {
             id: "t16",
-            text: "Polish responsive layout for smaller screens 📱",
+            text: "Polish responsive layout for smaller screens ",
           },
         ],
       },
@@ -113,14 +113,14 @@ export const initialBoards = [
         id: "done",
         name: "Done",
         tasks: [
-          { id: "t17", text: "Setup routing for /boards and /boards/:id ✅" },
+          { id: "t17", text: "Setup routing for /boards and /boards/:id " },
           {
             id: "t18",
-            text: "Improve drag and drop placeholder spacing and animation 🎯",
+            text: "Improve drag and drop placeholder spacing and animation ",
           },
           {
             id: "t19",
-            text: "Add empty states: no boards, no lists, no tasks 🧩",
+            text: "Add empty states: no boards, no lists, no tasks ",
           },
         ],
       },
@@ -129,7 +129,7 @@ export const initialBoards = [
 
   {
     id: "b3",
-    name: "Fresh Ideas ✨",
+    name: "Fresh Ideas ",
     lists: {},
   },
 ];
